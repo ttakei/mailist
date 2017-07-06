@@ -1,5 +1,4 @@
 <?php
-
 function render($str = "", $display = false) {
     static $html = "";
     if (!empty($str)) {
@@ -9,9 +8,12 @@ function render($str = "", $display = false) {
     if ($display) {
         $html = <<< EOS
 <html>
+<head>
+<meta charset="utf-8"/>
+</head>
 <body>
 <p>{$html}</p>
-<p><a href="/">戻る</a></p>
+<p><a href="/system/">戻る</a></p>
 </body>
 </html>
 EOS;
