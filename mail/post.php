@@ -9,17 +9,17 @@ function is_valid_mailaddress($address) {
 }
 
 function init_history() {
-    $raw = sprintf("%s,%s\n", "日時", "送信件数");
-    return file_put_contents(HISTORY_FILE, $raw);
+    $raw = sprintf("%s,%s\n", "日時", "送信件数", "送信元");
+    return file_put_contents(HISTORY_CSV, $raw);
 }
 
-function append_history($send_count) {
-    if (!file_exists(HISTORY_FILE)) {
+function append_history($send_count, $send_from) {
+    if (!file_exists(HISTORY_CSV)) {
         init_history();
     }
     $time_str = date("Y/m/d H:i:s");
-    $raw = sprintf("%s,%s\n", $time_str, $send_count);
-    return file_put_contents(HISTORY_FILE, $raw, FILE_APPEND);
+    $raw = sprintf("%s,%s,%s\n", $time_str, $send_count, $send_from);
+    return file_put_contents(HISTORY_CSV, $raw, FILE_APPEND);
 }
 
 function render($str = "", $display = false) {
@@ -95,7 +95,7 @@ foreach ($mail as $mail_pair) {
     $mail_address_success[] = $address;
 }
 
-append_history(count($mail_address_success));
+append_history(count($mail_address_success), $from);
 render(count($mail_address_success). "件にメールを送信しました");
 if ($mail_address_fail) {
     render("以下の宛先への送信に失敗しました");
