@@ -1,4 +1,27 @@
 <?php
+require_once("const.php");
+
+function is_valid_mailaddress($address) {
+    if (preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $address)) {
+        return true;
+    }
+    return false;
+}
+
+function init_history() {
+    $raw = sprintf("%s,%s\n", "日時", "送信件数");
+    return file_put_contents(HISTORY_FILE, $raw);
+}
+
+function append_history($send_count) {
+    if (!file_exists(HISTORY_FILE)) {
+        init_history();
+    }
+    $time_str = date("Y/m/d H:i:s");
+    $raw = sprintf("%s,%s\n", $time_str, $send_count);
+    return file_put_contents(HISTORY_FILE, $raw, FILE_APPEND);
+}
+
 function render($str = "", $display = false) {
     static $html = "";
     if (!empty($str)) {
@@ -13,7 +36,7 @@ function render($str = "", $display = false) {
 </head>
 <body>
 <p>{$html}</p>
-<p><a href="/system/">戻る</a></p>
+<p><a href="./">戻る</a></p>
 </body>
 </html>
 EOS;
@@ -32,8 +55,11 @@ function replace_name($str, $name) {
     return $str;
 }
 
+$from = $_POST["from"];
 $title_tpl = $_POST["title"];
 $body_tpl = $_POST["body"];
+$mail_headers = "From: {$from}";
+$mail_opt = "-f{$from}";
 
 $mail = array();
 $file = fopen($_FILES["csv"]["tmp_name"], "r");
@@ -52,19 +78,27 @@ if (!$mail) {
 }
 
 $mail_address_fail = array();
+$mail_address_success = array();
 foreach ($mail as $mail_pair) {
     $address = $mail_pair[0];
     $name = $mail_pair[1];
     $title = replace_name($title_tpl, $name);
     $body = replace_name($body_tpl, $name);
-    if (!mail($address, $title, $body)) {
+    if (!is_valid_mailaddress($address)) {
         $mail_address_fail[] = $address;
+        continue;
     }
+    if (!mail($address, $title, $body, $mail_headers, $mail_opt)) {
+        $mail_address_fail[] = $address;
+        continue;
+    }
+    $mail_address_success[] = $address;
 }
 
-render("メールの送信が完了しました");
+append_history(count($mail_address_success));
+render(count($mail_address_success). "件にメールを送信しました");
 if ($mail_address_fail) {
-    render("送信失敗");
+    render("以下の宛先への送信に失敗しました");
     $str = "<pre>";
     foreach ($mail_address_fail as $address) {
         $str .= "{$address}\n";

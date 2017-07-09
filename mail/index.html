@@ -3,22 +3,65 @@
 <meta charset="utf-8"/>
 <script type="text/javascript" src="md5.js"></script>
 <script type="text/javascript" src="jcap.js"></script>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="jquery.cookie.js"></script>
+<script type="text/javascript" src="jquery.csv2table.js"></script>
 </head>
 <body>
+<script type="text/javascript">
+$(function(){
+    var cookie_target_id = "#from,#title,#body";
+    var get_cookie_key = function(id) {
+        return "s_m_" + id;
+    };
+    var get_cookie = function(id) {
+        return $.cookie(get_cookie_key(id));
+    };
+    var set_cookie = function(id, value, expire_day = 1000) {
+        $.cookie(get_cookie_key(id), value, expire_day);
+    };
+    var save_input = function() {
+        $(cookie_target_id).each(function(){
+            set_cookie($(this).attr('id'), $(this).val());
+        });
+    };
+
+    // set default value
+    $(cookie_target_id).each(function(){
+        var value = get_cookie($(this).attr('id'));
+        if (value) {
+            $(this).val(value);
+        }
+    });
+
+    $('#submit').click(function(){
+        save_input();
+        return (jcap() && confirm('送信します。よろしいですか？'));
+    });
+
+    $('#history').csv2table('data/history.csv');
+});
+</script>
+<h2>送信フォーム</h2>
 <form enctype="multipart/form-data" method="post" action="./post.php">
 <h3>csvファイル</h3>
 <p>メールアドレス,名前 の形式</p>
-<input type="file" name="csv" />
+<input type="file" name="csv" id="csv" />
+<h3>送信元</h3>
+<input type="text" name="from" id="from" size="40" value="" />
 <h3>メールタイトル</h3>
 <p>{name} が使用できます。</p>
-<input type="text" name="title" size="100" />
+<input type="text" name="title" id="title" size="100" />
 <h3>メール本文</h3>
 <p>{name} が使用できます。</p>
-<textarea name="body" rows="25" cols="100"></textarea>
+<textarea name="body" id="body" rows="25" cols="100"></textarea>
 <h3>画像認証</h3>
 <p>画像に表示された文字を入力してください。</p>
 <script type="text/javascript">sjcap();</script>
-<input type="submit" name="submit" id="submit" value="送信する" onclick="return (jcap() && confirm('送信します。よろしいですか？'))" />
+<input type="submit" name="submit" id="submit" value="送信する" />
 </form>
+<br/>
+<h2>送信履歴</h2>
+<p id="history"></p>
 </body>
 </html>
