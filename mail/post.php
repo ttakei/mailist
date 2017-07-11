@@ -56,12 +56,33 @@ function replace_name($str, $name) {
 }
 
 $from = $_POST["from"];
+if (empty($from)) {
+    render_exit("送信元メールアドレスが指定されていません");
+}
+$from_name = empty($_POST["from_name"]) ? "" : mb_encode_mimeheader($_POST["from_name"]);
 $title_tpl = $_POST["title"];
 $body_tpl = $_POST["body"];
-$mail_headers = "From: {$from}";
+
+// mail header
+$mail_headers["MIME-Version"] = "1.0";
+$mail_headers["Content-Type"] = "text/plain; charset=UTF-8";
+$mail_headers["Content-Transfer-Encoding"] = "8bit";
+if (!empty($from_name)) {
+    $mail_headers["From"] = '"'. $from_name. '"<'. $from. '>';
+} else {
+    $mail_headers["From"] = $from;
+}
+$mail_headers_str = "";
+foreach ($mail_headers as $key => $val) {
+    $mail_headers_str .= "$key: $val\n";
+}
+$mail_headers_str = rtrim($mail_headers_str);
 $mail_opt = "-f{$from}";
 
 $mail = array();
+if (empty($_FILES["csv"]) || empty($_FILES["csv"]["tmp_name"])) {
+    render_exit("csvファイルが指定されていません");
+}
 $file = fopen($_FILES["csv"]["tmp_name"], "r");
 if (!$file) {
     render_exit("csvファイルの読み込みに失敗しました");
@@ -83,12 +104,13 @@ foreach ($mail as $mail_pair) {
     $address = $mail_pair[0];
     $name = $mail_pair[1];
     $title = replace_name($title_tpl, $name);
+    $mail_title = "=?iso-2022-jp?B?". base64_encode(mb_convert_encoding($title, "JIS", "UTF-8")). "?=";
     $body = replace_name($body_tpl, $name);
     if (!is_valid_mailaddress($address)) {
         $mail_address_fail[] = $address;
         continue;
     }
-    if (!mail($address, $title, $body, $mail_headers, $mail_opt)) {
+    if (!mail($address, $mail_title, $body, $mail_headers_str, $mail_opt)) {
         $mail_address_fail[] = $address;
         continue;
     }

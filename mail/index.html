@@ -10,7 +10,18 @@
 <body>
 <script type="text/javascript">
 $(function(){
-    var cookie_target_id = "#from,#title,#body";
+    // IE11対応
+    $.ajaxSetup({
+        xhr: function() {
+            if("ActiveXObject" in window) {
+                return new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            else {
+                return new XMLHttpRequest();
+            }
+        }
+    });
+    var cookie_target_id = "#from_name,#from,#title,#body";
     var get_cookie_key = function(id) {
         return "s_m_" + id;
     };
@@ -48,7 +59,10 @@ $(function(){
 <p>メールアドレス,名前 の形式</p>
 <input type="file" name="csv" id="csv" />
 <h3>送信元</h3>
-<input type="text" name="from" id="from" size="40" value="" />
+<table>
+<tr><td>送信者名(省略可):</td><td><input type="text" name="from_name" id="from_name" size="40" value="" /></td></tr>
+<tr><td>メールアドレス:</td><td><input type="text" name="from" id="from" size="40" value="" /></td></tr>
+</table>
 <h3>メールタイトル</h3>
 <p>{name} が使用できます。</p>
 <input type="text" name="title" id="title" size="100" />
@@ -60,7 +74,7 @@ $(function(){
 <script type="text/javascript">sjcap();</script>
 <input type="submit" name="submit" id="submit" value="送信する" />
 </form>
-<br/>
+<hr />
 <h2>送信履歴</h2>
 <p id="history"></p>
 </body>
