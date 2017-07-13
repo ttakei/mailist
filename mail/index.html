@@ -21,7 +21,7 @@ $(function(){
             }
         }
     });
-    var cookie_target_id = "#from_name,#from,#title,#body";
+    var cookie_target_id = "#csv_c,#from_name,#from,#title,#body";
     var get_cookie_key = function(id) {
         return "s_m_" + id;
     };
@@ -45,37 +45,59 @@ $(function(){
         }
     });
 
+    $('#test_send').click(function(){
+        save_input();
+        return confirm('テスト送信します。よろしいですか？');
+    });
+
     $('#submit').click(function(){
         save_input();
         return (jcap() && confirm('送信します。よろしいですか？'));
     });
 
-    $('#history').csv2table('history.php');
+    $('#history').csv2table('history.php?result=100');
 });
 </script>
 <h2>送信フォーム</h2>
 <form enctype="multipart/form-data" method="post" action="./post.php">
+
 <h3>csvファイル</h3>
-<p>メールアドレス,名前 の形式</p>
-<input type="file" name="csv" id="csv" />
-<h3>送信元</h3>
 <table>
-<tr><td>送信者名(省略可):</td><td><input type="text" name="from_name" id="from_name" size="40" value="" /></td></tr>
-<tr><td>メールアドレス:</td><td><input type="text" name="from" id="from" size="40" value="" /></td></tr>
+<tr><td>csvファイル:</td><td><input type="file" name="csv" id="csv" /></td></tr>
+<tr><td>文字コード:</td><td><select name="csv_c" id="csv_c">
+  <option value="">自動で認識</option>
+  <option value="SJIS">Shift-JIS</option>
+  <option value="UTF-8">UTF-8</option>
+  <option value="EUC-JP">EUC-JP</option>
+</select></td></tr>
 </table>
+<p>※csvファイルは、メールアドレス,名前 の形式</p>
+
 <h3>メールタイトル</h3>
 <p>{name} が使用できます。</p>
 <input type="text" name="title" id="title" size="100" />
+
 <h3>メール本文</h3>
 <p>{name} が使用できます。</p>
 <textarea name="body" id="body" rows="25" cols="100"></textarea>
+
+<h3>添付ファイル</h3>
+<input type="file" name="attachment" id="attachment" />
+
+<h3>送信元</h3>
+<table>
+<tr><td>送信者名(省略可):</td><td><input type="text" name="from_name" id="from_name" size="40" value="" /></td><td></td></tr>
+<tr><td>メールアドレス:</td><td><input type="text" name="from" id="from" size="40" value="" /></td><td><button type="submit" name="test_send" id="test_send" value="test_send">テスト送信</button></td></tr>
+</table>
+
 <h3>画像認証</h3>
 <p>画像に表示された文字を入力してください。</p>
 <script type="text/javascript">sjcap();</script>
-<input type="submit" name="submit" id="submit" value="送信する" />
+<input type="submit" name="submit" id="submit" value="全員へ一斉送信する" />
 </form>
 <hr />
-<h2>送信履歴</h2>
+
+<h2>送信履歴 (直近1ヶ月)</h2>
 <p id="history"></p>
 </body>
 </html>
