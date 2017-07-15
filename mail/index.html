@@ -36,6 +36,20 @@ $(function(){
             set_cookie($(this).attr('id'), $(this).val());
         });
     };
+    var check_input_test_send = function() {
+        var required = "#from";
+        var result = true;
+        $(required).each(function(){
+            if (!$(this).val()) {
+                var id = $(this).attr('id');
+                var label = $("label[for='"+id+"']").text();
+                window.alert(label+"を入力してください");
+                result = false;
+                return;
+            }
+        });
+        return result;
+    };
 
     // set default value
     $(cookie_target_id).each(function(){
@@ -47,7 +61,33 @@ $(function(){
 
     $('#test_send').click(function(){
         save_input();
-        return confirm('テスト送信します。よろしいですか？');
+        if (!confirm('テスト送信します。よろしいですか？')) {
+            return false;
+        }
+        if (!check_input_test_send()) {
+            return false;
+        }
+
+        var fd = new FormData();
+        fd.append("test_send", $("#test_send").val());
+        fd.append("title", $("#title").val());
+        fd.append("body", $("#body").val());
+        fd.append("attachment", $("#attachment").prop("files")[0]);
+        fd.append("from", $("#from").val());
+        fd.append("from_name", $("#from_name").val());
+        var post_data = {
+            type : "POST",
+            dataType : "text",
+            data : fd,
+            processData : false,
+            contentType : false
+        };
+        $.ajax(
+            "post.php", post_data
+        ).done(function(text){
+            // window.alert(text);
+        });
+        return false;
     });
 
     $('#submit').click(function(){
@@ -63,8 +103,8 @@ $(function(){
 
 <h3>csvファイル</h3>
 <table>
-<tr><td>csvファイル:</td><td><input type="file" name="csv" id="csv" /></td></tr>
-<tr><td>文字コード:</td><td><select name="csv_c" id="csv_c">
+<tr><td><label for="csv">csvファイル</label>:</td><td><input type="file" name="csv" id="csv" /></td></tr>
+<tr><td><label for="csv_c">文字コード</label>:</td><td><select name="csv_c" id="csv_c">
   <option value="">自動で認識</option>
   <option value="SJIS">Shift-JIS</option>
   <option value="UTF-8">UTF-8</option>
@@ -73,21 +113,21 @@ $(function(){
 </table>
 <p>※csvファイルは、メールアドレス,名前 の形式</p>
 
-<h3>メールタイトル</h3>
+<h3><label for="title">メールタイトル</label></h3>
 <p>{name} が使用できます。</p>
 <input type="text" name="title" id="title" size="100" />
 
-<h3>メール本文</h3>
+<h3><label for="body">メール本文</label></h3>
 <p>{name} が使用できます。</p>
 <textarea name="body" id="body" rows="25" cols="100"></textarea>
 
-<h3>添付ファイル</h3>
+<h3><label for="attachment">添付ファイル</label></h3>
 <input type="file" name="attachment" id="attachment" />
 
 <h3>送信元</h3>
 <table>
-<tr><td>送信者名(省略可):</td><td><input type="text" name="from_name" id="from_name" size="40" value="" /></td><td></td></tr>
-<tr><td>メールアドレス:</td><td><input type="text" name="from" id="from" size="40" value="" /></td><td><button type="submit" name="test_send" id="test_send" value="test_send">テスト送信</button></td></tr>
+<tr><td><label for="from_name">送信者名</label>(省略可):</td><td><input type="text" name="from_name" id="from_name" size="40" value="" /></td><td></td></tr>
+<tr><td><label for="from">送信元メールアドレス</label>:</td><td><input type="text" name="from" id="from" size="40" value="" /></td><td><button type="submit" name="test_send" id="test_send" value="test_send">テスト送信</button></td></tr>
 </table>
 
 <h3>画像認証</h3>

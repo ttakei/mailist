@@ -29,6 +29,11 @@ function render_exit($str = "") {
     exit;
 }
 
+function render_text_exit($str = "") {
+    echo($str);
+    exit;
+}
+
 function replace_name($str, $name) {
     $str = str_replace('{name}', $name, $str);
     return $str;
@@ -212,7 +217,7 @@ if (!$test_send) {
     render(count($mail_address_success). "件にメールを送信しました");
 } else {
     // 完了画面
-    render("テスト送信しました");
+    render_text_exit("テスト送信しました");
 }
 if ($mail_address_fail) {
     render("以下の宛先への送信に失敗しました");
