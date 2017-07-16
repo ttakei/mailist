@@ -1,26 +1,17 @@
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript" src="md5.js"></script>
 <script type="text/javascript" src="jcap.js"></script>
 <script type="text/javascript" src="jquery.js"></script>
+</script>
 <script type="text/javascript" src="jquery.cookie.js"></script>
 <script type="text/javascript" src="jquery.csv2table.js"></script>
 </head>
 <body>
 <script type="text/javascript">
 $(function(){
-    // IE11対応
-    $.ajaxSetup({
-        xhr: function() {
-            if("ActiveXObject" in window) {
-                return new ActiveXObject("Microsoft.XMLHTTP");
-            }
-            else {
-                return new XMLHttpRequest();
-            }
-        }
-    });
     var cookie_target_id = "#csv_c,#from_name,#from,#title,#body";
     var get_cookie_key = function(id) {
         return "s_m_" + id;
@@ -28,7 +19,8 @@ $(function(){
     var get_cookie = function(id) {
         return $.cookie(get_cookie_key(id));
     };
-    var set_cookie = function(id, value, expire_day = 1000) {
+    var set_cookie = function(id, value) {
+        var expire_day = 1000;
         $.cookie(get_cookie_key(id), value, expire_day);
     };
     var save_input = function() {
@@ -59,15 +51,25 @@ $(function(){
         }
     });
 
+    // ファイルリセット
+    $("input[name='file_reset']").each(function(){
+        var id_for = $(this).attr('for');
+        var clone = $("#"+id_for).clone();
+        $(this).click(function(){
+            clone.val('');
+            $("#"+id_for).replaceWith(clone);
+        });
+    });
+
     $('#test_send').click(function(){
         save_input();
-        if (!confirm('テスト送信します。よろしいですか？')) {
-            return false;
-        }
         if (!check_input_test_send()) {
             return false;
         }
 
+        if (!confirm('テスト送信します。よろしいですか？')) {
+            return false;
+        }
         var fd = new FormData();
         fd.append("test_send", $("#test_send").val());
         fd.append("title", $("#title").val());
@@ -95,7 +97,7 @@ $(function(){
         return (jcap() && confirm('送信します。よろしいですか？'));
     });
 
-    $('#history').csv2table('history.php?result=100');
+    $('#history').csv2table('history.php');
 });
 </script>
 <h2>送信フォーム</h2>
@@ -103,13 +105,24 @@ $(function(){
 
 <h3>csvファイル</h3>
 <table>
-<tr><td><label for="csv">csvファイル</label>:</td><td><input type="file" name="csv" id="csv" /></td></tr>
-<tr><td><label for="csv_c">文字コード</label>:</td><td><select name="csv_c" id="csv_c">
-  <option value="">自動で認識</option>
-  <option value="SJIS">Shift-JIS</option>
-  <option value="UTF-8">UTF-8</option>
-  <option value="EUC-JP">EUC-JP</option>
-</select></td></tr>
+<tr>
+  <td><label for="csv">csvファイル</label>:</td>
+  <td><input type="file" name="csv" id="csv" /></td>
+</tr>
+<tr>
+  <td><label for="csv_c">文字コード</label>:</td>
+  <td>
+    <select name="csv_c" id="csv_c">
+      <option value="">自動で認識</option>
+      <option value="SJIS">Shift-JIS</option>
+      <option value="UTF-8">UTF-8</option>
+      <option value="EUC-JP">EUC-JP</option>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td><input type="button" name="file_reset" for="csv" value="リセット" /></td>
+</tr>
 </table>
 <p>※csvファイルは、メールアドレス,名前 の形式</p>
 
@@ -122,12 +135,21 @@ $(function(){
 <textarea name="body" id="body" rows="25" cols="100"></textarea>
 
 <h3><label for="attachment">添付ファイル</label></h3>
-<input type="file" name="attachment" id="attachment" />
+<input type="file" name="attachment" id="attachment" /><br />
+<input type="button" name="file_reset" for="attachment" value="リセット" />
+</p>
 
 <h3>送信元</h3>
 <table>
-<tr><td><label for="from_name">送信者名</label>(省略可):</td><td><input type="text" name="from_name" id="from_name" size="40" value="" /></td><td></td></tr>
-<tr><td><label for="from">送信元メールアドレス</label>:</td><td><input type="text" name="from" id="from" size="40" value="" /></td><td><button type="submit" name="test_send" id="test_send" value="test_send">テスト送信</button></td></tr>
+<tr>
+  <td><label for="from_name">送信者名</label>(省略可):</td>
+  <td><input type="text" name="from_name" id="from_name" size="40" value="" /></td>
+  <td></td></tr>
+<tr>
+  <td><label for="from">送信元メールアドレス</label>:</td>
+  <td><input type="text" name="from" id="from" size="40" value="" /></td>
+  <td><button type="submit" name="test_send" id="test_send" value="test_send">テスト送信</button></td>
+</tr>
 </table>
 
 <h3>画像認証</h3>

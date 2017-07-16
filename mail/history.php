@@ -1,6 +1,7 @@
 <?php
 require_once("const.php");
 
+header("Content-Type: text/csv; charset=UTF-8");
 $head = "日時,送信件数,送信元";
 print "{$head}\n";
 

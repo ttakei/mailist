@@ -9,9 +9,10 @@ function render($str = "", $display = false) {
 
     if ($display) {
         $html = <<< EOS
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
 <body>
 <p>{$html}</p>
