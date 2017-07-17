@@ -51,17 +51,22 @@ function build_mail_title($title) {
     return "=?iso-2022-jp?B?". base64_encode(mb_convert_encoding($title, "JIS", "UTF-8")). "?=";
 }
 
+function build_attachment_file_name($file_name) {
+    return "=?iso-2022-jp?B?". base64_encode(mb_convert_encoding($file_name, "JIS", "UTF-8")). "?=";
+}
+
 function build_body_include_attachment($body, $attachment_type, $attachment_name, $attachment_raw, $boundary) {
+    $mail_attachment_name = build_attachment_file_name($attachment_name);
     $attachment_base64_chunk = chunk_split(base64_encode($attachment_raw));
 
     $body = <<< EOS
 --{$boundary}
-Content-Type: text/plain; charset="ISO-2022-JP"
+Content-Type: text/plain; charset="UTF-8"
 
 {$body}
 --{$boundary}
-Content-Type: {$attachment_type}; name="{$attachment_name}"
-Content-Disposition: attachment; filename="{$attachment_name}"
+Content-Type: {$attachment_type}; name="{$mail_attachment_name}"
+Content-Disposition: attachment; filename="{$mail_attachment_name}"
 Content-Transfer-Encoding: base64
 
 {$attachment_base64_chunk}
