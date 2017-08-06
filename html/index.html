@@ -11,7 +11,7 @@
 <body>
 <script type="text/javascript">
 $(function(){
-    var cookie_target_id = "#csv_c,#from_name,#from,#title,#body";
+    var cookie_target_id = "#send_to_raw,#from_name,#from,#title,#body";
     var get_cookie_key = function(id) {
         return "s_m_" + id;
     };
@@ -41,6 +41,61 @@ $(function(){
         });
         return result;
     };
+
+    var check_input_send = function() {
+        var required = "#from";
+        var result = true;
+        $(required).each(function(){
+            if (!$(this).val()) {
+                var id = $(this).attr('id');
+                var label = $("label[for='"+id+"']").text();
+                window.alert(label+"を入力してください");
+                result = false;
+                return;
+            }
+        });
+        var address_result = true;
+        var address = $("input[name='send_to_address[]']");
+        if (address.length < 1) {
+            window.alert("送信先を正しく入力してください");
+            address_result = false;
+        } else {
+            address.each(function(){
+                if (address_result && !$(this).val()) {
+                    window.alert("送信先を正しく入力してください");
+                    address_result = false;
+                    return;
+                }
+            });
+        }
+        return (result && address_result);
+    };
+
+    var load_send_to = function() {
+        var tbody_html = "";
+        var raw = $("#send_to_raw").val();
+        var rows = raw.split(/[\n\f\r]/);
+        rows.forEach(function (row) {
+            row = row.trim();
+            if (row == '') {
+                return;
+            }
+            var cols = row.split(/[,\t]/);
+            var name = cols[0] || "";
+            var address = cols[1] || "";
+            tbody_html = tbody_html + 
+                '<tr>' + 
+                '<td>' + name + '<input type="hidden" name="send_to_name[]" value="' + name + '" /></td>' + 
+                '<td>' + address + '<input type="hidden" name="send_to_address[]" value="' + address + '" /></td>' +
+                '</tr>';
+        });
+        $("#send_to tbody").html(tbody_html);
+    };
+
+    // 送信先
+    $("#send_to_raw").bind('input propertychange', function() {
+        load_send_to();
+    });
 
     // set default value
     $(cookie_target_id).each(function(){
@@ -93,15 +148,34 @@ $(function(){
 
     $('#submit').click(function(){
         save_input();
+        if (!check_input_send()) {
+            return false;
+        }
+
         return (jcap() && confirm('送信します。よろしいですか？'));
     });
 
+    load_send_to();
     $('#history').csv2table('history.php');
 });
 </script>
+<style>
+<!--
+.table {
+    border-collapse: collapse;
+}
+.table th {
+    border: 1px solid black; 
+}
+.table td {
+    border: 1px solid black; 
+}
+-->
+</style>
 <h2>送信フォーム</h2>
 <form enctype="multipart/form-data" method="post" action="./post.php">
 
+<!--
 <h3>csvファイル</h3>
 <table>
 <tr>
@@ -124,6 +198,14 @@ $(function(){
 </tr>
 </table>
 <p>※csvファイルは、メールアドレス,名前 の形式</p>
+-->
+
+<h3>送信先</h3>
+<textarea id="send_to_raw" rows="5" cols="100"></textarea>
+<table id="send_to" class="table">
+<thead><tr><td>名前</td><td>メールアドレス</td></tr></thead>
+<tbody></tbody>
+</table>
 
 <h3><label for="title">メールタイトル</label></h3>
 <p>{name} が使用できます。</p>
