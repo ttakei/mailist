@@ -29,7 +29,7 @@
 <body>
 <script type="text/javascript">
 $(function(){
-    var cookie_target_id = "#send_to_raw,#csv_c,#from_name,#from,#title,#body";
+    var cookie_target_id = "#send_to_name,#send_to_address,#from_name,#from,#title,#body";
     var get_cookie_key = function(id) {
         return "s_m_" + id;
     };
@@ -61,7 +61,7 @@ $(function(){
     };
 
     var check_input_send = function() {
-        var required = "#title,#body,#from";
+        var required = "#title,#body,#from,#send_to_name,#send_to_address";
         var result = true;
         $(required).each(function(){
             if (!$(this).val()) {
@@ -72,48 +72,10 @@ $(function(){
                 return;
             }
         });
-        var address_result = true;
-        var address = $("input[name='send_to_address[]']");
-        if (address.length < 1) {
-            window.alert("送信先を正しく入力してください");
-            address_result = false;
-        } else {
-            address.each(function(){
-                if (address_result && !$(this).val()) {
-                    window.alert("送信先を正しく入力してください");
-                    address_result = false;
-                    return;
-                }
-            });
-        }
-        return (result && address_result);
-    };
-
-    var load_send_to = function() {
-        var tbody_html = "";
-        var raw = $("#send_to_raw").val();
-        var rows = raw.split(/[\n\f\r]/);
-        rows.forEach(function (row) {
-            row = row.trim();
-            if (row == '') {
-                return;
-            }
-            var cols = row.split(/[,\t]/);
-            var name = cols[0] || "";
-            var address = cols[1] || "";
-            tbody_html = tbody_html +
-                '<tr>' +
-                '<td>' + name + '<input type="hidden" name="send_to_name[]" value="' + name + '" /></td>' +
-                '<td>' + address + '<input type="hidden" name="send_to_address[]" value="' + address + '" /></td>' +
-                '</tr>';
-        });
-        $("#send_to tbody").html(tbody_html);
+        return result;
     };
 
     // 送信先
-    $("#send_to_raw").bind('input propertychange', function() {
-        load_send_to();
-    });
     $("#csv").click(function(){
         $(this).val(null);
     });
@@ -131,11 +93,33 @@ $(function(){
                 from: encoding,
                 type: 'string'
             });
-            $("#send_to_raw").val(csv_utf8);
-            load_send_to();
+            var lines = csv_utf8.split(/[\n]/);
+            if (lines.length < 1) {
+                return;
+            }
+            var name = [];
+            var address = [];
+            lines.forEach(function(val, index) {
+                val = val.trim();
+                if (val == "") {
+                    return;
+                }
+                var cols = val.split(/[,\t]/);
+                name[index] = cols[0] || "";
+                address[index] = cols[1] || "";
+            });
+            var name_raw = name.join("\n");
+            var address_raw = address.join("\n");
+            $("#send_to_name").val(name_raw);
+            $("#send_to_address").val(address_raw);
         };
         reader.readAsArrayBuffer(file);
     });
+    $("#send_to_reset").click(function(){
+        $("#csv").val(null);
+        $("#send_to_name").val("");
+        $("#send_to_address").val("");
+    })
 
     // set default value
     $(cookie_target_id).each(function(){
@@ -194,7 +178,6 @@ $(function(){
         return (jcap() && confirm('送信します。よろしいですか？'));
     });
 
-    load_send_to();
     $('#history').csv2table('history.php');
 });
 </script> <a href="../index.htm"><img src="../pic/logo.gif" width="181" height="70" alt="ウェルカムぱんだ" longdesc="http://welcomepanda.asia/"></a><br>
@@ -250,44 +233,17 @@ $(function(){
 <hr style="border:none;border-top:dashed 1px #CCCCCC;height:1px;color:#FFFFFF">
 
 <h3>送信先 <span class="red01">※必須</span></h3>　
-<style>
-<!--
-.table {
-    border-collapse: collapse;
-}
-.table th {
-    border: 1px solid black;
-}
-.table td {
-    border: 1px solid black;
-}
--->
-</style>
 <p class="font80">(<a href="sample.csv">サンプルCSV</a> ←右クリックで「対象をファイルに保存」)</p>
 <br><input type="file" name="csv" id="csv" />
  <br><br>
-<textarea id="send_to_raw" rows="5" cols="100"></textarea>
-<table id="send_to" class="table">
-<thead><tr><td>名前</td><td>メールアドレス</td></tr></thead>
-<tbody></tbody>
+<table>
+<tr><th><label for="send_to_name">送信先氏名</label></th><th><label for="send_to_address">送信先メールアドレス</label></th></tr>
+<tr>
+<td><textarea id="send_to_name" name="send_to_name" rows="5" cols="25"></textarea></td>
+<td><textarea id="send_to_address" name="send_to_address" rows="5" cols="25"></textarea></td>
+</tr>
 </table>
-
-<!--
--->
-<!--
-<div class="blocka">
-  <label for="csv2"><label for="csv_c">文字コード</label>:</label>
-  :</div>  
-<div class="blockb">
-    <select name="csv_c" id="csv_c">
-      <option value="SJIS">Shift-JIS</option>
-      <option value="UTF-8">UTF-8</option>
-      <option value="EUC-JP">EUC-JP</option>
-      <option value="">自動で認識</option>
-    </select>
-</div>
-<div class="blockc"></div>
--->
+<p><input type="button" id="send_to_reset" value="クリア" /></p>
 
 <h3>画像認証<span class="red01">　※必須</span></h3>
 画像に表示された文字を入力してください。

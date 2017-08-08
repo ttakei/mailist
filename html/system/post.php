@@ -160,8 +160,8 @@ if (!$test_send) {
     if (empty($_POST['send_to_name']) || empty($_POST['send_to_address'])) {
         render_exit("メールアドレスと名前のペアが1件もありません。");
     }
-    $name_arr = $_POST['send_to_name'];
-    $address_arr = $_POST['send_to_address'];
+    $name_arr = explode("\n", $_POST['send_to_name']);
+    $address_arr = explode("\n", $_POST['send_to_address']);
     if (!is_array($name_arr) || !is_array($address_arr) ||
         count($name_arr) != count($address_arr)) {
         render_exit("メールアドレスと名前のデータが不正です。");
