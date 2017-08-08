@@ -169,6 +169,9 @@ if (!$test_send) {
     for ($i = 0; $i < count($name_arr); $i++) {
         $name = trim($name_arr[$i]);
         $address = trim($address_arr[$i]);
+        if ($name === "" || $address === "") {
+            continue;
+        }
         $mail[] = array($address, $name);
     }
     if (!$mail) {
