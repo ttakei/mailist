@@ -64,7 +64,7 @@ $(function(){
         var required = "#title,#body,#from,#send_to_name,#send_to_address";
         var result = true;
         $(required).each(function(){
-            if (!$(this).val()) {
+            if (!$(this).val() || $(this).val().trim() == "") {
                 var id = $(this).attr('id');
                 var label = $("label[for='"+id+"']").text();
                 window.alert(label+"を入力してください");
