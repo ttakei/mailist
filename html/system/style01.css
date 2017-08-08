@@ -1,0 +1,120 @@
+@charset "utf-8";
+.midash {
+	padding: 0.25em 0.5em;/*上下 左右の余白*/
+	color: #494949;/*文字色*/
+	background: transparent;/*背景透明に*/
+	border-left: solid 5px #7db4e6;/*左線*/
+}
+
+
+.box01 {
+    position: relative;
+    margin: 2em 0;
+    padding: 0.5em 1em;
+    border: solid 3px #62c1ce;
+}
+.box01 .box-title {
+    position: absolute;
+    display: inline-block;
+    top: -40px;
+    left: -3px;
+    padding: 0 20px;
+    height: 40px;
+    line-height: 40px;
+    vertical-align: middle;
+    font-size: 25px;
+    background: #62c1ce;
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 5px 5px 0 0;
+}
+.box01 p {
+    margin: 0; 
+    padding: 0;
+}
+
+h3 {
+	padding: 0.25em 0.3em;/*上下 左右の余白*/
+	color: #494949;/*文字色*/
+	background: transparent;/*背景透明に*/
+	border-left: solid 5px #7db4e6;/*左線*/
+}
+
+.sbt_1{
+	width:100%;
+	height:40px;
+	background-color:black;
+	border:none;
+	color:#fff;
+	font-size:20px;
+	font-weight:700;
+	text-align:center;
+	    border-radius: 5px 5px 5px 5px;
+	
+}
+.sbt_1:hover{
+	background-color:#761c0c;
+	color:#fff;
+}
+.red01 {
+	font-size: 80%;
+	font-weight: bold;
+	color: #F00;
+}
+
+
+div.blocka {
+   float: left;
+   width: 20%;
+}
+div.blockb {
+   float: left;
+   width: 60%;
+}
+div.blockc {
+	clear: both;
+}
+
+.margintop {
+    margin-top: 3px;
+	
+}
+
+.testsub {
+margin-top:5px;
+width:200px;
+padding: 3px 3px;
+font-size: 15px;
+background-color: #666666;
+color: #fff;
+border-style: none;
+border-radius: 7px 7px 7px 7px;
+}
+
+
+/* Webkit対応 */
+.form-control::-webkit-input-placeholder{
+    color: #cccccc;
+}
+ 
+/* Firefox対応 */
+.form-control::-moz-placeholder{
+    color: #cccccc;
+}
+ 
+/* Firefox対応 */
+.form-control:-moz-placeholder{
+    color: #cccccc;
+}
+ 
+/* IE対応 */
+.form-control:-ms-input-placeholder{
+    color: #cccccc;
+}
+
+.font80 {
+    font-size: 80%;
+}
+
+
+

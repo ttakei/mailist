@@ -1,17 +1,35 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+
+<meta name="viewport"
+ content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+ <meta name="format-detection" content="telephone=no">
+ <link media="only screen and (max-device-width:480px)"
+ href="smart.css" type="text/css" rel="stylesheet" />
+ <link media="screen and (min-device-width:481px)" href="design.css"
+ type="text/css" rel="stylesheet" />
+ <!--[if IE]>
+ <link href="design.css" type="text/css" rel="stylesheet" />
+ <![endif]-->
+
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="Keywords" content="メール一斉送信,リーダー,専用,ログイン,愛知,名古屋,岐阜,三重,社会人サークル" />
+<meta name="Description" content="リーダー専用のメール一斉配信システム" />
 <script type="text/javascript" src="md5.js"></script>
 <script type="text/javascript" src="jcap.js"></script>
 <script type="text/javascript" src="jquery.js"></script>
+</script>
 <script type="text/javascript" src="jquery.cookie.js"></script>
 <script type="text/javascript" src="jquery.csv2table.js"></script>
+<script type="text/javascript" src="encoding.min.js"></script>
+<link href="style01.css" rel="stylesheet" type="text/css">
+<title>メール一斉配信システム｜ウェルカムぱんだ</title>
 </head>
 <body>
 <script type="text/javascript">
 $(function(){
-    var cookie_target_id = "#send_to_raw,#from_name,#from,#title,#body";
+    var cookie_target_id = "#send_to_raw,#csv_c,#from_name,#from,#title,#body";
     var get_cookie_key = function(id) {
         return "s_m_" + id;
     };
@@ -43,7 +61,7 @@ $(function(){
     };
 
     var check_input_send = function() {
-        var required = "#from";
+        var required = "#title,#body,#from";
         var result = true;
         $(required).each(function(){
             if (!$(this).val()) {
@@ -83,9 +101,9 @@ $(function(){
             var cols = row.split(/[,\t]/);
             var name = cols[0] || "";
             var address = cols[1] || "";
-            tbody_html = tbody_html + 
-                '<tr>' + 
-                '<td>' + name + '<input type="hidden" name="send_to_name[]" value="' + name + '" /></td>' + 
+            tbody_html = tbody_html +
+                '<tr>' +
+                '<td>' + name + '<input type="hidden" name="send_to_name[]" value="' + name + '" /></td>' +
                 '<td>' + address + '<input type="hidden" name="send_to_address[]" value="' + address + '" /></td>' +
                 '</tr>';
         });
@@ -95,6 +113,28 @@ $(function(){
     // 送信先
     $("#send_to_raw").bind('input propertychange', function() {
         load_send_to();
+    });
+    $("#csv").click(function(){
+        $(this).val(null);
+    });
+    $("#csv").change(function(event){
+        if (event.target.files.length < 1) {
+            return;
+        }
+        var file = event.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var codes = new Uint8Array(e.target.result);
+            var encoding = $("#csv_c").val() || Encoding.detect(codes);
+            var csv_utf8 = Encoding.convert(codes, {
+                to: 'unicode',
+                from: encoding,
+                type: 'string'
+            });
+            $("#send_to_raw").val(csv_utf8);
+            load_send_to();
+        };
+        reader.readAsArrayBuffer(file);
     });
 
     // set default value
@@ -151,95 +191,117 @@ $(function(){
         if (!check_input_send()) {
             return false;
         }
-
         return (jcap() && confirm('送信します。よろしいですか？'));
     });
 
     load_send_to();
     $('#history').csv2table('history.php');
 });
-</script>
+</script> <a href="../index.htm"><img src="../pic/logo.gif" width="181" height="70" alt="ウェルカムぱんだ" longdesc="http://welcomepanda.asia/"></a><br>
+<br>
+<a href="../index.htm">トップ</a>　＞　メール一斉送信システム<br>
+
+<p><br>
+【<a href="manual/" target="_blank">使い方マニュアル</a>】<br>
+<br>
+</p>
+<form enctype="multipart/form-data" method="post" action="./post.php">
+  
+  <div class="box01">
+    <span class="box-title">一斉送信フォーム</span>
+
+<h3><label for="title">メールタイトル</label>
+  <span class="red01">※必須</span></h3>
+  {name} が使用できます。<br>
+<input type="text" name="title" id="title" size="50"class="form-control" placeholder="本日の〇〇は雨天のため中止になりました" />
+<br><br>
+
+<h3><label for="body">メール本文</label>
+  <span class="red01">※必須</span></h3>
+{name} が使用できます。<br>
+<textarea name="body" id="body" rows="15" cols="50" class="form-control" placeholder="{name}さんへ
+
+こんにちは。〇〇です。
+
+本日の〇〇ですが、残念ながら雨天のため中止になりました。
+また次回のご参加をお待ちしています。
+" ></textarea>
+<br><br>
+
+<label for="attachment">添付ファイル</label>
+	<input type="file" name="attachment" id="attachment" />
+	<input type="button" name="file_reset" for="attachment" value="リセット" />
+<br><br>
+
+<h3>送信元<span class="red01">　※必須</span></h3>
+
+<label for="from_name">送信者名</label>(省略可):
+<input type="text" name="from_name" id="from_name" size="25" value="" class="form-control" placeholder="送信者名" />
+<br>
+
+<div class="margintop">
+<label for="from">送信元アドレス</label>:
+<input type="text" name="from" id="from" size="27" value="" class="form-control" placeholder="test@gmail.com" />
+</div>
+<br>
+<button type="submit" name="test_send" id="test_send" value="test_send" class="testsub">送信元へテスト送信</button>
+<br><br><br>
+
+<hr style="border:none;border-top:dashed 1px #CCCCCC;height:1px;color:#FFFFFF">
+
+<h3>送信先 <span class="red01">※必須</span></h3>　
 <style>
 <!--
 .table {
     border-collapse: collapse;
 }
 .table th {
-    border: 1px solid black; 
+    border: 1px solid black;
 }
 .table td {
-    border: 1px solid black; 
+    border: 1px solid black;
 }
 -->
 </style>
-<h2>送信フォーム</h2>
-<form enctype="multipart/form-data" method="post" action="./post.php">
-
-<!--
-<h3>csvファイル</h3>
-<table>
-<tr>
-  <td><label for="csv">csvファイル</label>:</td>
-  <td><input type="file" name="csv" id="csv" /></td>
-</tr>
-<tr>
-  <td><label for="csv_c">文字コード</label>:</td>
-  <td>
-    <select name="csv_c" id="csv_c">
-      <option value="">自動で認識</option>
-      <option value="SJIS">Shift-JIS</option>
-      <option value="UTF-8">UTF-8</option>
-      <option value="EUC-JP">EUC-JP</option>
-    </select>
-  </td>
-</tr>
-<tr>
-  <td><input type="button" name="file_reset" for="csv" value="リセット" /></td>
-</tr>
-</table>
-<p>※csvファイルは、メールアドレス,名前 の形式</p>
--->
-
-<h3>送信先</h3>
+<p class="font80">(<a href="sample.csv">サンプルCSV</a> ←右クリックで「対象をファイルに保存」)</p>
+<br><input type="file" name="csv" id="csv" />
+ <br><br>
 <textarea id="send_to_raw" rows="5" cols="100"></textarea>
 <table id="send_to" class="table">
 <thead><tr><td>名前</td><td>メールアドレス</td></tr></thead>
 <tbody></tbody>
 </table>
 
-<h3><label for="title">メールタイトル</label></h3>
-<p>{name} が使用できます。</p>
-<input type="text" name="title" id="title" size="100" />
+<!--
+-->
+<!--
+<div class="blocka">
+  <label for="csv2"><label for="csv_c">文字コード</label>:</label>
+  :</div>  
+<div class="blockb">
+    <select name="csv_c" id="csv_c">
+      <option value="SJIS">Shift-JIS</option>
+      <option value="UTF-8">UTF-8</option>
+      <option value="EUC-JP">EUC-JP</option>
+      <option value="">自動で認識</option>
+    </select>
+</div>
+<div class="blockc"></div>
+-->
 
-<h3><label for="body">メール本文</label></h3>
-<p>{name} が使用できます。</p>
-<textarea name="body" id="body" rows="25" cols="100"></textarea>
-
-<h3><label for="attachment">添付ファイル</label></h3>
-<input type="file" name="attachment" id="attachment" /><br />
-<input type="button" name="file_reset" for="attachment" value="リセット" />
-</p>
-
-<h3>送信元</h3>
-<table>
-<tr>
-  <td><label for="from_name">送信者名</label>(省略可):</td>
-  <td><input type="text" name="from_name" id="from_name" size="40" value="" /></td>
-  <td></td></tr>
-<tr>
-  <td><label for="from">送信元メールアドレス</label>:</td>
-  <td><input type="text" name="from" id="from" size="40" value="" /></td>
-  <td><button type="submit" name="test_send" id="test_send" value="test_send">テスト送信</button></td>
-</tr>
-</table>
-
-<h3>画像認証</h3>
-<p>画像に表示された文字を入力してください。</p>
+<h3>画像認証<span class="red01">　※必須</span></h3>
+画像に表示された文字を入力してください。
 <script type="text/javascript">sjcap();</script>
-<input type="submit" name="submit" id="submit" value="全員へ一斉送信する" />
-</form>
-<hr />
 
+<br><br>
+<input class="sbt_1" type="submit" name="submit" id="submit" value="一斉送信する" />
+<br>
+<br>
+<br>
+</p></div>
+
+</form>
+<br><br>
 <h2>送信履歴 (直近1ヶ月)</h2>
 <p id="history"></p>
 </body>

@@ -104,7 +104,7 @@ function update_history($send_count, $send_from) {
 // from
 $from = $_POST["from"];
 if (empty($from)) {
-    render_exit("送信元メールアドレスが指定されていません");
+    render_exit("送信元メールアドレスが指定されていません。");
 }
 $from_name = empty($_POST["from_name"]) ? "" : $_POST["from_name"];
 
@@ -157,37 +157,14 @@ $mail_opt = "-f{$from}";
 // csv
 $mail = array();
 if (!$test_send) {
-    /*
-    if (
-        empty($_FILES["csv"]) ||
-        empty($_FILES["csv"]["tmp_name"]) ||
-        !($file = fopen($_FILES["csv"]["tmp_name"], "r"))
-    ) {
-        render_exit("csvファイルの読み込みに失敗しました");
-    }
-    $csv_encode = !empty($_POST["csv_c"]) ? $_POST["csv_c"] : "";
-    while ($line = fgets($file)) {
-        list($address, $name) = explode(",", $line);
-        $address = trim($address);
-        $name = trim($name);
-        if (!empty($csv_encode)) {
-            $name = mb_convert_encoding($name, "UTF-8", $csv_encode);
-        } else {
-            $detect = mb_detect_encoding($name, array('SJIS', 'EUC-JP', 'UTF-8'));
-            $name = mb_convert_encoding($name, "UTF-8", $detect);
-        }
-        $mail[] = array($address, $name);
-    }
-    fclose($file);
-    */
     if (empty($_POST['send_to_name']) || empty($_POST['send_to_address'])) {
-        render_exit("メールアドレスと名前のペアが1件もありません");
+        render_exit("メールアドレスと名前のペアが1件もありません。");
     }
     $name_arr = $_POST['send_to_name'];
     $address_arr = $_POST['send_to_address'];
     if (!is_array($name_arr) || !is_array($address_arr) ||
         count($name_arr) != count($address_arr)) {
-        render_exit("メールアドレスと名前のデータが不正です");
+        render_exit("メールアドレスと名前のデータが不正です。");
     }
     for ($i = 0; $i < count($name_arr); $i++) {
         $name = trim($name_arr[$i]);
@@ -195,7 +172,7 @@ if (!$test_send) {
         $mail[] = array($address, $name);
     }
     if (!$mail) {
-        render_exit("メールアドレスと名前のペアが1件もありません");
+        render_exit("メールアドレスと名前のペアが1件もありません。");
     }
 } else {
      $mail[] = array($from, $from_name);
@@ -236,13 +213,13 @@ if (!$test_send) {
     update_history(count($mail_address_success), $from);
 
     // 完了画面
-    render(count($mail_address_success). "件にメールを送信しました");
+    render(count($mail_address_success). "件メールを送信しました。");
 } else {
     // 完了画面
-    render_text_exit("テスト送信しました");
+    render_text_exit("テスト送信しました。");
 }
 if ($mail_address_fail) {
-    render("以下の宛先への送信に失敗しました");
+    render("以下の宛先への送信に失敗しました。");
     $str = "<pre>";
     foreach ($mail_address_fail as $address) {
         $str .= "{$address}\n";
