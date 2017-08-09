@@ -157,8 +157,8 @@ $mail_opt = "-f{$from}";
 // csv
 $mail = array();
 if (!$test_send) {
-    if (empty($_POST['send_to_name']) || empty($_POST['send_to_address'])) {
-        render_exit("メールアドレスと名前のペアが1件もありません。");
+    if (!isset($_POST['send_to_name']) || !isset($_POST['send_to_address'])) {
+        render_exit("メールアドレスと名前のデータが不正です。");
     }
     $name_arr = explode("\n", rtrim($_POST['send_to_name']));
     $address_arr = explode("\n", rtrim($_POST['send_to_address']));
