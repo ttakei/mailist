@@ -160,16 +160,18 @@ if (!$test_send) {
     if (empty($_POST['send_to_name']) || empty($_POST['send_to_address'])) {
         render_exit("メールアドレスと名前のペアが1件もありません。");
     }
-    $name_arr = explode("\n", $_POST['send_to_name']);
-    $address_arr = explode("\n", $_POST['send_to_address']);
-    if (!is_array($name_arr) || !is_array($address_arr) ||
-        count($name_arr) != count($address_arr)) {
+    $name_arr = explode("\n", rtrim($_POST['send_to_name']));
+    $address_arr = explode("\n", rtrim($_POST['send_to_address']));
+    if (!is_array($name_arr) || !is_array($address_arr)) {
         render_exit("メールアドレスと名前のデータが不正です。");
     }
-    for ($i = 0; $i < count($name_arr); $i++) {
-        $name = trim($name_arr[$i]);
+    if (count($name_arr) > count($address_arr)) {
+        render_exit("メールアドレスの数が名前より少ないです。");
+    }
+    for ($i = 0; $i < count($address_arr); $i++) {
+        $name = isset($name_arr[$i]) ? trim($name_arr[$i]) : "";
         $address = trim($address_arr[$i]);
-        if ($name === "" || $address === "") {
+        if ($name === "" && $address === "") {
             continue;
         }
         $mail[] = array($address, $name);
